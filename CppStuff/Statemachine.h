@@ -1,39 +1,18 @@
 #pragma once
 #include <vector>
 #include <map>
-#include <iostream>
+#include "State.h"
 
-//base class that acts as an interface
-class State
-{
-public:
-	State() { }
-	~State() { }
-	//called once when the machine sets this state to be active
-	virtual void OnEnter()
-	{
-		std::cout << "default state enter" << std::endl;
-	}
-	//called once when the machine sets this state to be inactive
-	virtual void OnExit()
-	{
-		std::cout << "default state exit" << std::endl;
-	}
-	//called every time the machine updates
-	virtual void Update()
-	{
-		
-	}
-};
+
 
 //class that represents a logical connection between states
 class Transition
 {
 public:
-	Transition(int to, bool* condition);
+	Transition(unsigned int to, Condition condition);
 	~Transition() { }
-	bool* Condition;
-	int To;
+	Condition predicate;
+	unsigned int To;
 };
 
 
@@ -43,15 +22,15 @@ public:
 	StateMachine() { }
 	~StateMachine() { }
 	void Update(); //call it in a while(true) loop
-	void SetState(int state); //attempts to set the currently active state
-	void AddTransition(int from, int to, bool* predicate); //adds a transition based on indexes
-	void AddAnyTransiton(int to, bool* predicate); //any transition does not care about what state is active
+	void SetState(unsigned int state); //attempts to set the currently active state
+	void AddTransition(unsigned int from, unsigned int to, Condition predicate); //adds a transition based on indexes
+	void AddAnyTransiton(unsigned int to, Condition predicate); //any transition does not care about what state is active
 	void AddState(State* newState); //adds a state to the statemachine pointer array
 private:
 	int currTransitionIndex = -1; //helper to prevent entering the same state
 	Transition* GetTransition();
 	State* currentState;
-	std::map<int, std::vector<Transition>> transitions; //all the possible transitions
+	std::map<unsigned int, std::vector<Transition>> transitions; //all the possible transitions
 	std::vector<Transition> anyTransitions; //transition that dont care about the current state
 	std::vector<Transition> currTransitions; //transitions that belong to the current state
 	std::vector<State*> states; //all possible states
@@ -67,7 +46,7 @@ inline void StateMachine::Update()
 	currentState->Update();
 }
 
-inline void StateMachine::SetState(int state)
+inline void StateMachine::SetState(unsigned int state)
 {	
 	//dont enter the same state
 	if (currTransitionIndex == state)
@@ -84,12 +63,12 @@ inline void StateMachine::SetState(int state)
 
 }
 
-inline void StateMachine::AddTransition(int from, int to, bool* predicate)
+inline void StateMachine::AddTransition(unsigned int from, unsigned int to, Condition predicate)
 {	
 	transitions[from].push_back(Transition(to, predicate));
 }
 
-inline void StateMachine::AddAnyTransiton(int to, bool* predicate)
+inline void StateMachine::AddAnyTransiton(unsigned int to, Condition predicate)
 {
 	anyTransitions.push_back(Transition(to, predicate));
 }
@@ -104,23 +83,23 @@ inline Transition* StateMachine::GetTransition()
 	//need to check any transitions first, they have priority
 	for (Transition at : anyTransitions)
 	{
-		if(*at.Condition) 
+		if(*at.predicate) 
 		{
 			return &at;
 		}
 	}
 	for (Transition ct : currTransitions)
 	{
-		if (*ct.Condition == true)
-		{
+		if (*ct.predicate)
+		{			
 			return &ct;
 		}
 	}
 	return nullptr;
 }
 
-inline Transition::Transition(int to, bool* condition)
+inline Transition::Transition(unsigned int to, Condition condition)
 {
 	To = to;
-	Condition = condition;
+	predicate = condition;
 }
