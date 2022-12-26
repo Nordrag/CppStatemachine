@@ -2,6 +2,7 @@
 #include "Statemachine.h"
 #include "States.h"
 
+
 //define a convinient name for the state indexes
 int STATE_ONE = 0;
 int STATE_TWO = 1;
@@ -14,15 +15,10 @@ StateMachine statemachine; //note that you can add a statemachine inside a state
 //define entry conditions
 bool firstEntry = false;
 bool secondEntry = false;
-bool isRunning = true;
-
-//define transitions
-Transition firstToTwo(STATE_TWO, &firstEntry);
-Transition twoToFirst(STATE_ONE, &secondEntry);
-
 
 int main()
 {	
+	
 	//add states IMPORTANT, you need to add them in order according to the indexes
 	//STATE_ONE = 0 therefore I need to add stateOne first
 	statemachine.AddState(&stateOne);
