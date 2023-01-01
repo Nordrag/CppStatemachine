@@ -9,9 +9,9 @@
 class Transition
 {
 public:
-	Transition(unsigned int to, Condition condition);
+	Transition(unsigned int to, bool* condition);
 	~Transition() { }
-	Condition predicate;
+	bool* predicate;
 	unsigned int To;
 };
 
@@ -23,9 +23,9 @@ public:
 	~StateMachine() { }
 	void Update(); //call it in a while(true) loop
 	void SetState(unsigned int state); //attempts to set the currently active state
-	void AddTransition(unsigned int from, unsigned int to, Condition predicate); //adds a transition based on indexes
-	void AddAnyTransiton(unsigned int to, Condition predicate); //any transition does not care about what state is active
-	void AddState(State* newState); //adds a state to the statemachine pointer array
+	void AddTransition(unsigned int from, unsigned int to, bool* predicate); //adds a transition based on indexes
+	void AddAnyTransiton(unsigned int to, bool* predicate); //any transition does not care about what state is active
+	unsigned int AddState(State* newState); //adds a state to the statemachine pointer array
 private:
 	int currTransitionIndex = -1; //helper to prevent entering the same state
 	Transition* GetTransition();
@@ -47,7 +47,7 @@ inline void StateMachine::Update()
 }
 
 inline void StateMachine::SetState(unsigned int state)
-{	
+{
 	//dont enter the same state
 	if (currTransitionIndex == state)
 	{
@@ -56,26 +56,27 @@ inline void StateMachine::SetState(unsigned int state)
 	if (currentState != nullptr)
 	{
 		currentState->OnExit(); //exit the current state
-	}	
+	}
 	currentState = states[state];
+	currTransitionIndex = state;
 	currTransitions = transitions[state];
 	currentState->OnEnter();
-
 }
 
-inline void StateMachine::AddTransition(unsigned int from, unsigned int to, Condition predicate)
-{	
+inline void StateMachine::AddTransition(unsigned int from, unsigned int to, bool* predicate)
+{
 	transitions[from].push_back(Transition(to, predicate));
 }
 
-inline void StateMachine::AddAnyTransiton(unsigned int to, Condition predicate)
+inline void StateMachine::AddAnyTransiton(unsigned int to, bool* predicate)
 {
 	anyTransitions.push_back(Transition(to, predicate));
 }
 
-inline void StateMachine::AddState(State* newState)
+inline unsigned int StateMachine::AddState(State* newState)
 {
 	states.push_back(newState);
+	return states.size() - 1;
 }
 
 inline Transition* StateMachine::GetTransition()
@@ -83,22 +84,22 @@ inline Transition* StateMachine::GetTransition()
 	//need to check any transitions first, they have priority
 	for (Transition at : anyTransitions)
 	{
-		if(*at.predicate) 
+		if (*at.predicate == 1)
 		{
 			return &at;
 		}
 	}
 	for (Transition ct : currTransitions)
-	{
-		if (*ct.predicate)
-		{			
+	{		
+		if (*ct.predicate == 1)
+		{
 			return &ct;
 		}
 	}
 	return nullptr;
 }
 
-inline Transition::Transition(unsigned int to, Condition condition)
+inline Transition::Transition(unsigned int to, bool* condition)
 {
 	To = to;
 	predicate = condition;

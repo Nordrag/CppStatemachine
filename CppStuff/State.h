@@ -1,7 +1,7 @@
 #pragma once
 
 //definition for a condition pointer that returns a bool and has no parameters
-typedef bool(*Condition)();
+//typedef bool(*Condition)(); fail
 
 
 //base class that acts as an interface

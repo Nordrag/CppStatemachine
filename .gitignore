@@ -31,3 +31,7 @@
 *.out
 *.app
 *.db
+.vs/CppStuff/v17/Browse.VC.db
+.vs/CppStuff/v17/Browse.VC.db-shm
+.vs/CppStuff/v17/Browse.VC.db-wal
+.vs/CppStuff/v17/Browse.VC.opendb

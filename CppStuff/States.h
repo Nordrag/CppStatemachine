@@ -3,6 +3,11 @@
 #include <iostream>
 #define LOG(x) std::cout<< x << std::endl;
 
+
+extern bool firstEntry;
+extern bool secondEntry;
+extern bool isWorking;
+
 //header containing the classes that implement the base State class
 class StateOne : public State
 {
@@ -11,7 +16,7 @@ public:
 	~StateOne() { }
 
 	void OnEnter() override
-	{
+	{		
 		LOG("entered state one");
 	}
 	void OnExit() override
@@ -20,7 +25,8 @@ public:
 	}
 	void Update() override
 	{
-		LOG("updating state one");
+		LOG("updating state one");	
+		secondEntry = true;
 	}
 };
 
@@ -32,7 +38,7 @@ public:
 	~StateTwo() { }
 
 	void OnEnter()
-	{
+	{		
 		LOG("entered state two");
 	}
 	void OnExit()
@@ -41,6 +47,12 @@ public:
 	}
 	void Update()
 	{
-		LOG("updating state two");
+		LOG("updating state two");	
+		OnExit(); //force exit
+		LOG("Simulation over");
+		isWorking = false;
 	}
 };
+
+
+
